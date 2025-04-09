@@ -1,10 +1,16 @@
 target := presentation
-source := src/main.cpp
-object := $(source:.cpp=.o)
+source := src/main.cpp src/presen.cpp
+object = $(source:.cpp=.o)
 
-all: $(source) $(object)
-	g++ -c -o $(object) $(source) 
+all: $(object)
 	g++ -o $(target) $(object) -lsfml-graphics -lsfml-window -lsfml-system
+
+.c.o:
+	g++ -c $<
+
+run:
+	make all
+	./$(target)
 
 remove: $(object) $(target)
 	rm $(object) $(target)

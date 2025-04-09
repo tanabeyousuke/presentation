@@ -1,9 +1,9 @@
 #ifndef INCLUDE
 #define INCLUDE
 
-#include <stdio.h>
-#include <math.h>
+#include <iostream>
 
 #include <SFML/Graphics.hpp>
 
+#include "presen.h"
 #endif 
