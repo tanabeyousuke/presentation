@@ -1,0 +1,9 @@
+section basicdata
+name:report.pdf
+link:evince ../../main.pdf
+end section basicdata
+
+
+section assemble
+tex:src/tex:rm main.dvi main.pdf; uplatex <src> -interaction=batchmode -quiet; dvipdfmx main.dvi ;evince main.pdf
+end section assemble

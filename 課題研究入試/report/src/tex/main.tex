@@ -1,0 +1,232 @@
+\documentclass[dvipdfmx]{ujarticle}
+
+\usepackage[margin=15mm]{geometry}
+\usepackage{setspace}
+\usepackage{titlesec}
+\usepackage{listings, jvlisting}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows.meta, positioning}
+
+\tikzset{
+  terminal/.style={rounded rectangle, draw=black, text centered},
+  process/.style={rectangle, draw=black, text centered},
+  if/.style={diamond, draw=black, text centered,aspect=2}
+}
+
+\lstset{
+  basicstyle={\ttfamily},
+  identifierstyle={\small},
+  commentstyle={\smallitshape},
+  keywordstyle={\small\bfseries},
+  ndkeywordstyle={\small},
+  stringstyle={\small\ttfamily},
+  frame={tb},
+  breaklines=true,
+  columns=[l]{fullflexible},
+  numbers=left,
+  xrightmargin=0zw,
+  xleftmargin=3zw,
+  numberstyle={\scriptsize},
+  stepnumber=1,
+  numbersep=1zw,
+  lineskip=0ex
+}
+
+\renewcommand{\baselinestretch}{0}
+\titlespacing{\subsection}{0pt}{0pt}{3pt}
+\titlespacing{\subsubsection}{0pt}{0pt}{3pt}
+
+\title{テキスト演奏ソフトウェアシンセサイザーの制作}
+\author{渡邉陽平}
+\date{令和7年10月5日}
+
+\begin{document}
+\maketitle
+
+\section{はじめに}
+\subsection{テーマと動機}
+近年の音楽制作ではシンセサイザーが欠かせない物となっているが、その内部構造や音作りの原理はブラックボックス化している。本研究では、減算式シンセサイザの機能の一部であるオシレータやフィルタと言った音響合成の基本要素を自力で実装し、その過程を通じてデジタル信号処理の基礎を深く理解することを目的とする。\par
+本ソフトウェアはテキストファイルを利用して自動演奏を実現している。これは、自動演奏式の方が演奏技術よりもシンセサイザーの構造に関心を持ちやすくし、理解を深める目的がある。
+\subsection{技術的仕様}
+\begin{itemize}
+  \setlength{\itemsep}{-0.5mm}
+  \setlength{\parskip}{0mm}
+\item 音声出力部
+  \begin{itemize}
+  \setlength{\itemsep}{-0.5mm}
+  \setlength{\parskip}{0mm}
+  \item 言語:C(C17規格)
+  \item 役割:PCM信号を音声として出力する。低レベルなシステムIOやライブラリとの連携が容易であるため採用した。
+  \item コンパイラ:gcc 12.2.0
+  \item 主要ライブラリ:PulseAudioクライアントライブラリ 16.1
+  \end{itemize}
+\item 音響合成部
+  \begin{itemize}
+  \setlength{\itemsep}{-0.5mm}
+  \setlength{\parskip}{0mm}
+  \item 言語:Fortran 2003
+  \item 役割:オシレータやフィルタを始めとした全て音響合成処理を行う。信号処理に最適化された言語特性から採用した。
+  \item コンパイラ: GNU Fotran 12.2.0
+  \end{itemize}
+\end{itemize}
+
+\subsection{機能要件分析}
+本ソフトウェアが実現すべき機能要件は研究目的に基づき、以下の項目に定義する。
+\begin{itemize}
+  \setlength{\itemsep}{-0.5mm}
+  \setlength{\parskip}{0mm}
+\item IO制御
+  \begin{itemize}
+  \setlength{\itemsep}{-0.5mm}
+  \setlength{\parskip}{0mm}
+  \item PCM出力:Fortranで生成したPCMデータをPulseAudioを通じて途切れの少ないように出力すること。
+  \item シンセサイザの操作:シンセサイザの構成をテキストファイルで設定すること。
+  \item 自動演奏:音符、休符などをテキストファイルから読み込み、オシレータ等にPCMデータを生成するよう指示すること。
+  \end{itemize}
+\item 音響合成
+  \begin{itemize}
+  \setlength{\itemsep}{-0.5mm}
+  \setlength{\parskip}{0mm}
+  \item 基本構成要素:オシレータ、フィルタ、エンベロープ、LFOの各音響要素をデジタル的に生成・制御すること。
+  \item 自動演奏実行:読み込んだ音符や休符から音響合成の指示を自動的に行うこと。
+  \end{itemize}
+\end{itemize}
+
+\subsection{システム設計}
+\begin{itemize}
+  \setlength{\itemsep}{-0.5mm}
+  \setlength{\parskip}{0mm}
+\item 全体のフローチャート\par
+  \begin{tikzpicture}
+    \path[draw, dotted](5, -1)--(5, 7);
+    
+    \node[terminal](start) at (7, 6){開始};
+    \node[text centered](t1) at (3, 7){C言語};
+    \node[text centered](t2) at (7, 7){Fortran};
+
+    \draw[->](7, 5.75)--(7, 5.5)--(3, 5.5)--(3, 5.25);
+    \node[process](p1) at (3, 5){PulseAudio等の起動};
+    \draw[->](3, 4.75)--(3, 4.5)--(7, 4.5)--(7, 4.25);
+    \node[process](p2) at (7, 4){設定からインスタンス生成};
+    \draw[->](7, 3.75)--(7, 3.5);
+    \node[process](p3) at (7, 3.25){楽譜から音響合成};
+    \draw[->](7, 3)--(7, 2.75)--(3, 2.75)--(3, 2.5);
+    \node[process](p4) at (3, 2.25){音声出力};
+    \draw[->](3, 2)--(3, 1.75)--(7, 1.75)--(7, 1.5);
+    \node[if](if1) at (7, 0.75){演奏終了条件};
+    \draw[->](7, 0)--(7, -0.5);
+    \draw[->](8.5, 0.75)--(9, 0.75)--(9, 3.25)--(8.5, 3.25);
+    \node[terminal](end) at (7, -0.75){終了};
+  \end{tikzpicture}
+\item シンセサイザーの基本構造\par
+  \begin{tikzpicture}
+    \node[process](m1) at (0, 2){オシレータ};
+    \draw[->](1, 2)--(1.725, 2);
+    \node[process](m2) at (2.5, 2){フィルタ};
+    \draw[->](3.25, 2)--(4.375, 2);
+    \node[process](m3) at (5, 2){アンプ};
+    
+    \node[process](m4) at (2.5, 3){エンベロープ};
+    \draw[->, dotted](2.5, 2.7)--(0, 2.3);
+    \draw[->, dotted](2.5, 2.7)--(2.5, 2.3);
+    \draw[->, dotted](2.5, 2.7)--(5, 2.3);
+    \node[process](m5) at (2.5, 1){LFO};
+    \draw[->, dotted](2.5, 1.25)--(0, 1.7);
+    \draw[->, dotted](2.5, 1.25)--(2.5, 1.7);
+    \draw[->, dotted](2.5, 1.25)--(5, 1.7);
+  \end{tikzpicture}
+\end{itemize}
+\section{音響合成部(Fortran)の実装}
+本モジュールは、楽譜テキストファイルを解析し、設定されたシンセサイザパラメータに基づき、最終的に音響データを生成する純粋な計算処理を担当する。
+\subsection{オシレータ部}
+出力音の基礎となる簡単な形の波を発生させる。人間の発声器官のうち声帯に相当する。\par
+例として以下に矩形波を生成するFortranの関数を示す。\par
+\begin{lstlisting}
+  IMPLICIT NONE
+  PURE FUNCTION OSC_SQUARE(X)
+    REAL, INTENT(IN)::X
+    REAL::OSC_SQUARE
+
+    REAL::I
+
+    I = X-AINT(X)
+
+    IF(I < 0.5)THEN
+      OSC_SQUARE=1
+    ELSE
+      OSC_SQUARE=-1
+    END IF
+  END FUNCTION OSC_SQUARE  
+\end{lstlisting}
+便宜上、一周を$2\pi$ではなく$1$としている。\par
+Fortranでは繰り返しをSIMDに自動的に変換することがあるが、純粋関数にすることでSIMD命令への変換が起こりやすくなるため、結果的に効率の向上に繋がる。
+\subsection{ゲイン}
+最終的な音量を変化させる。一般的に、波の式は以下の式で表される。
+$$Asin2\pi(\frac{t}{T}-\frac{x}{\lambda})$$
+ゲインはこの式の$A$に相当し、いわゆる振幅、音の大きさである。
+\subsection{エンベロープ}
+出力の大きさを鍵盤が押されてからの時間で変化させる。\par
+以下にエンベロープの構成要素と役割をグラフで示す。\par
+\begin{tikzpicture}
+  \draw[->, very thick](0, 0)--(0, 3);
+  \node at (-1, 3){出力};
+  \draw[->, very thick](0, 0)--(5, 0);
+  \node at (5, -1){時間};
+  
+  \draw[thick](0, 0)--(1, 3)--(2, 2)--(3, 2)--(5,0);
+
+  \draw[thick, dotted](1, 3)--(1, -0.5);
+  \draw[thick, dotted](2, 2)--(2, -0.5);
+  \draw[thick, dotted](3, 2)--(3, -0.5);
+  \draw[<->, thick, dotted](2.5, 2)--(2.5, 0);
+  \node at (3, 1){SUS};
+
+  \draw[<->, thick, dotted](0, -0.25)--(1, -0.25);
+  \draw[<->, thick, dotted](1, -0.25)--(2, -0.25);
+  \draw[<->, thick, dotted](3, -0.25)--(5, -0.25);
+  \node at (0.5, -0.5){ATK};
+  \node at (1.5, -0.5){DEC};
+  \node at (4, -0.5){REL};
+\end{tikzpicture}\par
+ただし、RELは鍵盤から離した後の出力であり、いわゆる余韻。
+
+\section{実装計画}
+本プロジェクトで構築した音響合成システムは、基本機能の実装を優先したため、音色の複雑な加工や表現力の向上に繋がる以下の機能については、今後の課題として実装を計画する。
+\subsection{フィルタ}
+一定の周波数帯や倍音を増幅または減衰させ、音色を変化させる機能。
+本プロジェクトでは、アナログ回路のシミュレーションなどを利用して実装を目指す。
+\subsection{LFO}
+連続的に出力を変化させる機能で、ビブラートやトレモロ等の効果を演出する。
+\subsection{サンプリング周波数逓減}
+擬似的にサンプリング周波数を下げることにより、レトロゲーム機に似た音色を演出する。\par
+以下に、この機能が波形をどのように変化させるかをグラフで示す。\par
+\begin{tikzpicture}
+  \draw[->, very thick](0, 0)--(0, 3);
+  \node at (-1, 3){出力};
+  \draw[->, very thick](0, 1.5)--(6.5, 1.5);
+  \node at (6.5, 1){時間};
+  \draw[->, double, very thick](6.75, 1.5)--(7.25, 1.5); 
+  \draw[->, very thick](8, 0)--(8, 3);
+  \node at (7, 3){出力};
+  \draw[->, very thick](8, 1.5)--(14.5, 1.5);
+  \node at (14.5, 1){時間};
+
+  \draw[thick](0, 1.5)--(1.5, 3)--(4.5, 0)--(6, 1.5);
+
+  \draw[thick](8, 1.5)-|(8.5, 2)-|(9, 2.5)-|(9.5, 3)-|(10, 2.5)-|(10.5, 2)-|(11, 1.5)-|(11.5, 1)-|(12, 0.5)-|(12.5, 0)-|(13, 0.5)-|(13.5, 1)-|(14, 1.5);
+\end{tikzpicture}
+
+\section{終わりに}
+本研究では、FortranとC言語のハイブリッド構成によるトーキング・モジュレータ音響合成システムを構築した。本システムの構築における最大の目的は、Fortranの持つ計算処理能力の高さを活かして開発を行い、音響合成についての知見を深めることであった。\par
+
+本研究を通じて、以下の成果と技術的知見を得ることができた。
+\begin{itemize}
+\item ISO\_C\_BINDINGについて\par
+  ISO\_C\_BINDINGモジュールを使うことにより、FortranとC言語の間でデータの受け渡しが可能になった。
+\item 音響合成\par
+  オシレータやエンベロープなど減算式シンセサイザーの基本的な機能の実装を通して、音声合成技術の理解に近づいた。また、SIMD最適化や、効率的なデータ構造の設計などの知見が深まった。
+\end{itemize}
+一方で、本システムには未だに実装できていない機能も多く、音色の多様性と言う点で課題が残されている。これらの実装に向けてこれからも努力を続けていく。
+
+\end{document}
+

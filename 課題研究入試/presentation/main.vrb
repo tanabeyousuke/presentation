@@ -1,0 +1,20 @@
+\frametitle{実装のプロセス(2)}
+  \alert{C言語とFortranの連携}\par
+  ISO\_C\_BINDINGモジュールを用いることでC言語で定義された手続きをFortranから呼び出すことが可能になる。
+  例:\par
+  \begin{lstlisting}[language={C}]
+    int hoge_in_c(int n, int m){
+      ...
+      return x;
+    }
+  \end{lstlisting}
+  \begin{lstlisting}[language={Fortran}]
+    USE ISO_C_BINDING
+    FUNCTION HOGE_IN_F(N, M) BIND(C,&
+            &NAME='hoge_in_c')
+      INTEGER(C_INT), INTENT(in)::N,M
+      INTEGER(C_INT), INTENT(OUT)::HOGE_IN_F
+    END FUNCTION HOGE_IN_F
+  \end{lstlisting}
+  このようにCの手続きをFortranで参照することにより、この場合であればHOGE\_IN\_Fとして呼び出すことが出来る。\par
+  void型の関数を参照する場合は、関数としてではなくサブルーチンとして参照する。
