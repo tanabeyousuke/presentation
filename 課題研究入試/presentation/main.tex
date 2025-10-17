@@ -6,6 +6,8 @@
 \usepackage[utf8]{inputenc} % 日本語環境では適宜変更（例：\usepackage[dvipdfmx]{graphicx} なども必要）
 \usetheme{metropolis} % 例としてテーマを設定（Boadilla, Madridなども人気）
 
+\usepackage{graphicx}
+
 \usepackage{tikz}
 \usetikzlibrary{shapes, arrows.meta, positioning}
 \tikzset{
@@ -41,7 +43,7 @@
   \item システムの設計と仕様
   \item 実装のプロセス
   \item 主な工夫
-  \item 実装予定の機能、まとめ
+  \item 実装予定の機能
   \end{itemize}
 \end{frame}
 
@@ -173,5 +175,45 @@
   \end{lstlisting}  
   このようにCの手続きをFortranで参照することにより、この場合であればHOGE\_IN\_Fとして呼び出すことが出来る。\par
   void型の関数を参照する場合は、関数としてではなくサブルーチンとして参照する。
-  \end{frame}
+\end{frame}
+
+\begin{frame}
+  \frametitle{実装予定の機能(1)}
+  \alert{フィルター}\par
+  減算式シンセサイザーでは、オシレータの音から不要な周波数成分をカットし、音色を変化させる。\par
+  本研究では、アナログ回路のシミュレーションを利用して実装を目指す。\par
+  例:ローパスフィルタ\par
+  \includegraphics[scale=0.5]{lpf.png}\par
+  \raggedleft{\footnotesize (出典:https://synth-voice.sakura.ne.jp/synth-voice/html5/synth-basic02.html)}  
+\end{frame}
+
+\begin{frame}
+  \frametitle{実装予定の機能(2)}
+  \alert{LFO}\par
+  出力の大きさを周期的に変化させる。\par
+  アンプに繋げばトレモロ、オシレータのピッチに繋げばビブラートが再現できる。\par
+  \includegraphics[scale=0.25]{vib.png}\par
+   \raggedleft{\footnotesize (出典:https://hikigatarisuto-labo.jp/vibrato/)}  
+\end{frame}
+
+\begin{frame}
+  \frametitle{実装予定の機能(3)}
+  \alert{サンプリング周波数逓減モジュール}\par
+  あえて波形をガタガタにすることで、レトロゲームのような効果を演出する。\par
+  \begin{tikzpicture}[scale=0.6]
+    \draw[->, very thick](0, 0)--(0, 3);
+    \node at (-1, 3){出力};
+    \draw[->, very thick](0, 1.5)--(6.5, 1.5);
+    \node at (6.5, 1){時間};
+    \draw[->, double, very thick](6.75, 1.5)--(7.25, 1.5); 
+    \draw[->, very thick](8, 0)--(8, 3);
+    \node at (7, 3){出力};
+    \draw[->, very thick](8, 1.5)--(14.5, 1.5);
+    \node at (14.5, 1){時間};
+    
+    \draw[thick](0, 1.5)--(1.5, 3)--(4.5, 0)--(6, 1.5);
+    
+    \draw[thick](8, 1.5)-|(8.5, 2)-|(9, 2.5)-|(9.5, 3)-|(10, 2.5)-|(10.5, 2)-|(11, 1.5)-|(11.5, 1)-|(12, 0.5)-|(12.5, 0)-|(13, 0.5)-|(13.5, 1)-|(14, 1.5);
+  \end{tikzpicture}
+\end{frame}
 \end{document}
