@@ -27,7 +27,6 @@
   %% breaklines=true, %折り返し
 }
 
-
 \title{ソフトウェアシンセサイザーの制作}
 \author{渡邉 陽平}
 
@@ -151,7 +150,7 @@
   \end{lstlisting}
   
   \vspace{0.5em}
-  後のコーディング時の便宜を図るため、一周を$2\pi$ではなく1としている。
+%%   後のコーディング時の便宜を図るため、一周を$2\pi$ではなく1としている。
 \end{frame}
 
 \begin{frame}[fragile]
@@ -173,15 +172,15 @@
       INTEGER(C_INT), INTENT(OUT)::HOGE_IN_F
     END FUNCTION HOGE_IN_F
   \end{lstlisting}  
-  このようにCの手続きをFortranで参照することにより、この場合であればHOGE\_IN\_Fとして呼び出すことが出来る。\par
-  void型の関数を参照する場合は、関数としてではなくサブルーチンとして参照する。
+%%   このようにCの手続きをFortranで参照することにより、この場合であればHOGE\_IN\_Fとして呼び出すことが出来る。\par
+%%   void型の関数を参照する場合は、関数としてではなくサブルーチンとして参照する。
 \end{frame}
 
 \begin{frame}
   \frametitle{実装予定の機能(1)}
   \alert{フィルター}\par
-  減算式シンセサイザーでは、オシレータの音から不要な周波数成分をカットし、音色を変化させる。\par
-  本研究では、アナログ回路のシミュレーションを利用して実装を目指す。\par
+%%   減算式シンセサイザーでは、オシレータの音から不要な周波数成分をカットし、音色を変化させる。\par
+%%   本研究では、アナログ回路のシミュレーションを利用して実装を目指す。\par
   例:ローパスフィルタ\par
   \includegraphics[scale=0.5]{lpf.png}\par
   \raggedleft{\footnotesize (出典:https://synth-voice.sakura.ne.jp/synth-voice/html5/synth-basic02.html)}  
@@ -190,8 +189,8 @@
 \begin{frame}
   \frametitle{実装予定の機能(2)}
   \alert{LFO}\par
-  出力の大きさを周期的に変化させる。\par
-  アンプに繋げばトレモロ、オシレータのピッチに繋げばビブラートが再現できる。\par
+%%   出力の大きさを周期的に変化させる。\par
+%%   アンプに繋げばトレモロ、オシレータのピッチに繋げばビブラートが再現できる。\par
   \includegraphics[scale=0.25]{vib.png}\par
    \raggedleft{\footnotesize (出典:https://hikigatarisuto-labo.jp/vibrato/)}  
 \end{frame}
@@ -199,7 +198,7 @@
 \begin{frame}
   \frametitle{実装予定の機能(3)}
   \alert{サンプリング周波数逓減モジュール}\par
-  あえて波形をガタガタにすることで、レトロゲームのような効果を演出する。\par
+%%   あえて波形をガタガタにすることで、レトロゲームのような効果を演出する。\par
   \begin{tikzpicture}[scale=0.6]
     \draw[->, very thick](0, 0)--(0, 3);
     \node at (-1, 3){出力};

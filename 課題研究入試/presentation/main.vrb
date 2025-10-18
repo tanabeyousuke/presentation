@@ -16,5 +16,5 @@
       INTEGER(C_INT), INTENT(OUT)::HOGE_IN_F
     END FUNCTION HOGE_IN_F
   \end{lstlisting}
-  このようにCの手続きをFortranで参照することにより、この場合であればHOGE\_IN\_Fとして呼び出すことが出来る。\par
-  void型の関数を参照する場合は、関数としてではなくサブルーチンとして参照する。
+%%   このようにCの手続きをFortranで参照することにより、この場合であればHOGE\_IN\_Fとして呼び出すことが出来る。\par
+%%   void型の関数を参照する場合は、関数としてではなくサブルーチンとして参照する。
